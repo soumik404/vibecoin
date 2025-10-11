@@ -87,11 +87,8 @@ export default function QuizPage() {
         setPfpLoading(false);
       };
       reader.readAsDataURL(blob);
-    } catch (err) {
-      if ((err as any).name === "AbortError") {
-        // aborted - ignore
-        return;
-      }
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       console.error("pfp fetch error", err);
       setPfp("/default-avatar.png");
       setPfpLoaded(true);
@@ -185,7 +182,7 @@ export default function QuizPage() {
 
       {!started && (
         <div className="w-[380px] bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-3xl p-6 shadow-[0_0_50px_rgba(0,123,255,0.8)] border-2 border-blue-500">
-          <p className="text-white mb-6">Click start to begin — you'll be asked for Discord & Twitter first.</p>
+          <p className="text-white mb-6">Click start to begin — you&apos;ll be asked for Discord & Twitter first.</p>
 
           <div className="flex gap-3">
             <button
@@ -250,7 +247,7 @@ export default function QuizPage() {
           <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-lg font-bold shadow-inner">💫</div>
           <h3 className="text-2xl font-bold text-white">Enter Your Details</h3>
         </div>
-        <p className="text-white/70 mb-6">We’ll fetch your Twitter avatar and attach it to your Base NFT.</p>
+        <p className="text-white/70 mb-6">We&apos;ll fetch your Twitter avatar and attach it to your Base NFT.</p>
 
         {/* Discord input */}
         <div className="mb-4">
@@ -285,26 +282,36 @@ export default function QuizPage() {
         </div>
 
         {/* Base time */}
-        <div className="mb-4 ">
-                    <label className="text-sm text-white/80 ">Spend on BASE</label><br />
-<div className=" flex gap-3 mt-2 items-center">
-          <input
-            type="number"
-            min={0}
-            value={baseTime.value}
-            onChange={(e) => setBaseTime({ ...baseTime, value: Number(e.target.value) })}
-            className="p-2 rounded-xl bg-white/10 text-white border border-blue-400/40 focus:border-blue-300 focus:ring-2 focus:ring-blue-400 w-20 outline-none"
-          />
-          <select
-            value={baseTime.unit}
-            onChange={(e) => setBaseTime({ ...baseTime, unit: e.target.value as any })}
-            className="p-2 rounded-xl bg-white/10 text-white border border-blue-400/40 focus:border-blue-300 focus:ring-2 focus:ring-blue-400 outline-none"
-          >
-            <option value="days">Days</option>
-            <option value="months">Months</option>
-            <option value="years">Years</option>
-          </select>
-        </div></div>
+        <div className="mb-4">
+  <label className="text-sm text-white/80">Spend on BASE</label>
+  <br />
+  <div className="flex gap-3 mt-2 items-center">
+    <input
+      type="number"
+      min={0}
+      value={baseTime.value}
+      onChange={(e) =>
+        setBaseTime({ ...baseTime, value: Number(e.target.value) })
+      }
+      className="p-2 rounded-xl bg-white/10 text-white border border-blue-400/40 focus:border-blue-300 focus:ring-2 focus:ring-blue-400 w-20 outline-none"
+    />
+    <select
+      value={baseTime.unit}
+      onChange={(e) =>
+        setBaseTime({
+          ...baseTime,
+          unit: e.target.value as "days" | "months" | "years",
+        })
+      }
+      className="p-2 rounded-xl bg-white/10 text-white border border-blue-400/40 focus:border-blue-300 focus:ring-2 focus:ring-blue-400 outline-none"
+    >
+      <option value="days">Days</option>
+      <option value="months">Months</option>
+      <option value="years">Years</option>
+    </select>
+  </div>
+</div>
+
 
         {/* Buttons */}
         <div className="flex gap-3 mt-4">

@@ -16,6 +16,7 @@ export async function GET(req: Request) {
       },
     });
   } catch (err) {
+    console.error(err); 
     return NextResponse.json({ error: "Failed to fetch image" }, { status: 500 });
   }
 }
