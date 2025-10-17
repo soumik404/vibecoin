@@ -33,5 +33,8 @@ export const minikitConfig = {
     ogDescription: "Base Mini App where you can mint NFTs, test your Base knowledge, and show your onchain vibes.",
     ogImageUrl: `${ROOT_URL}/blue-hero.png`,
   },
+  "baseBuilder": {
+    "ownerAddress": "0xc775185C61448F85B2530cc96Ff1297C45AfbF48"
+  }
 } as const;
 
