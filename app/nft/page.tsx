@@ -15,6 +15,7 @@ export default async function NFTPage({ searchParams }: { searchParams: Promise<
       <div className="flex items-center justify-center min-h-screen text-xl text-blue-800 font-semibold">
         Loading your NFT...
       </div>
+      
     }>
       <NFTClient searchParams={params} />
     </Suspense>

@@ -5,25 +5,12 @@ import { useRouter } from "next/navigation";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import { base } from "wagmi/chains";
-
+import { ToastContainer } from "./components/toastManager";
 import { Connected } from '@coinbase/onchainkit';
 import "./globals.css";
 import styles from "./page.module.css";
 
 // import "@coinbase/onchainkit/styles.css";
-
-import {
-  ConnectWallet,
-  Wallet,
-  WalletDropdown,
-  WalletDropdownDisconnect,
-} from '@coinbase/onchainkit/wallet';
-import {
-  Address,
-  Avatar,
-  Name,
-  Identity,
-} from '@coinbase/onchainkit/identity';
 
 export default function Home() {
   const { isFrameReady, setFrameReady, context } = useMiniKit();
@@ -77,26 +64,13 @@ export default function Home() {
         {/* connect wallet */}
         
        
-              <Wallet>
-          <ConnectWallet>
-            <Avatar className="h-6 w-6" />
-            <Name />
-          </ConnectWallet>
-          <WalletDropdown>
-            <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
-              <Avatar />
-              <Name />
-              <Address />
-            </Identity>
-            <WalletDropdownDisconnect />
-          </WalletDropdown>
-        </Wallet>
+           
             </div>
         
         
                   {/* end */}
       </div>
-    
+    <ToastContainer />
 </OnchainKitProvider>
 );
 }

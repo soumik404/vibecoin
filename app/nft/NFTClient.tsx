@@ -8,8 +8,8 @@ import html2canvas from "html2canvas";
 // import { Providers } from'./providers';
 import '../../app/globals.css';
 import { useAccount, useChainId } from "wagmi";
-
-// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import { uploadToPinata } from "../components/uploadToPinata";
+import { showToast } from "../components/toastManager";// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 // import { ConnectButton } from '@rainbow-me/rainbowkit';
 // import { useConnectModal } from "@rainbow-me/rainbowkit";
 import '@rainbow-me/rainbowkit/styles.css';
@@ -77,23 +77,47 @@ const [minting] = useState(false); // loading state
 
 
  const handleMint = async () => {
-     if ( !address) {
-      
-
-      console.log("Wallet not connected");
-    
-      // alert("Please connect your wallet to mint.");
+  if (!address) {
+showToast("Wallet not connected!", "error");
+console.log("Wallet not connected!");
     return;
   }
-    const nftMetadata = {
-      name: "Vibe NFT",
-      description: "Minted on VibeCoin NFT Collection",
-      image: "https://example.com/nft.png",
+
+  if (!cardRef.current) {
+    showToast("NFT card not ready.", "error");
+    return;
+  }
+
+  try {
+    // 🧷 1. Capture the NFT card as an image
+    const canvas = await html2canvas(cardRef.current, { useCORS: true });
+    const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+    const file = new File([blob], "vibe-nft.png", { type: "image/png" });
+
+    // 🪶 2. Upload image to Pinata
+    const imageUrl = await uploadToPinata(file);
+    console.log("Uploaded image to IPFS:", imageUrl);
+
+    // 🧾 3. Create metadata object
+    const metadata = {
+      name: "VibeCoin NFT",
+      description: `Exclusive collectible for ${user?.discord}`,
+      image: imageUrl,
+      attributes: [
+        { trait_type: "Score", value: score },
+        { trait_type: "Roles", value: roles.join(", ") },
+      ],
     };
 
-    const txHash = await mintNFT({ userAddress: address, chainId, nftMetadata });
-    console.log("Mint complete! Tx:", txHash);
-  };
+    // 4️⃣ Mint NFT using your existing mintNFT function
+    const txHash = await mintNFT({ userAddress: address, chainId, nftMetadata: metadata });
+    showToast(`NFT minted successfully! 🎉 Tx Hash: ${txHash}`, "success");
+  } catch (err) {
+    console.error("Mint error:", err);
+    showToast( `Minting failed. Please try again. ${err}`, "error");
+  }
+};
+
 
 
 
@@ -138,7 +162,7 @@ const mainRoles = [
 
   const handleDownload = async () => {
     if (!cardRef.current || !pfpLoaded) {
-      alert("Please wait for the profile picture to load.");
+      showToast("Please wait for the profile picture to load successfully.", "error");
       return;
     }
 //     // nft image
@@ -257,6 +281,10 @@ const mainRoles = [
         </div>
       </div>
 
+
+
+
+
       {/* Role Selection + Actions */}
       <div className="mt-8 w-[380px] flex flex-col gap-4 justify-center">
         <label className="text-blue-800 font-semibold mb-2 w-full text-center">
@@ -319,13 +347,9 @@ const mainRoles = [
           >
             Download
           </button>
-          {/* <ConnectWallet
-  render={({ onClick, status, isLoading }) => (
-    <button onClick={onClick} className="my-custom-style">
-      {status === 'disconnected' ? 'Connect' : 'Connected'}
-    </button>
-  )}
-/> */}
+         
+
+
 <button
   onClick={handleMint}
   disabled={minting}
@@ -337,6 +361,16 @@ const mainRoles = [
 
         </div>
       </div>
+<style jsx global>{`
+  @keyframes slideIn {
+    0% { transform: translateX(100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+`}</style>
 
 <style jsx global>{`
 /* Modal backdrop */
