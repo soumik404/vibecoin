@@ -2,6 +2,9 @@
 import { ReactNode } from "react";
 import { base } from "wagmi/chains";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
+import '../app/globals.css';
+// import "@coinbase/onchainkit/styles.css";
+
 // import "@coinbase/onchainkit/styles.css";
 
 export function RootProvider({ children }: { children: ReactNode }) {
@@ -22,6 +25,7 @@ export function RootProvider({ children }: { children: ReactNode }) {
         enabled: true,
         autoConnect: true,
         notificationProxyUrl: undefined,
+        
       }}
     >
       {children}

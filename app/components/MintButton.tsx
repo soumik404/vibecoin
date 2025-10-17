@@ -1,50 +1,42 @@
-// "use client";
-// import { useState } from "react";
-// import { useOnchainKit } from "@coinbase/onchainkit";
-// import { ethers } from "ethers";
-// import NFT_ABI from "../abi/NFT.json"; // your NFT contract ABI
+// lib/mintNFT.ts
+"use client";
+import { writeContract, getWalletClient } from "wagmi/actions";
+import { config } from "./config"; // your wagmi config file
+import { VibeCoinNFTAddress, VibeCoinNFTABI } from "../nft/contracts/VibeCoinNFT";
+// import { OnchainKitProvider } from "@coinbase/onchainkit";
+export async function mintNFT({
+  userAddress,
+  // chainId,
+  nftMetadata,
+}: {
+  userAddress: string;
+  chainId: number;
+  nftMetadata: {
+    name: string;
+    description: string;
+    image: string;
+  };
+}) {
+  try {
+    const walletClient = await getWalletClient(config);
+    if (!walletClient) throw new Error("Wallet not connected");
 
-// const NFT_CONTRACT_ADDRESS = "0xYourNFTContractAddress";
+    // Convert metadata to base64 JSON
+    const tokenURI =
+      "data:application/json;base64," + btoa(JSON.stringify(nftMetadata));
 
-// export default function MintButton() {
-//   const { connect, signer, isConnected, account } = useOnchainKit();
-//   const [minting, setMinting] = useState(false);
+    // Call contract
+    const txHash = await writeContract(config, {
+     address: VibeCoinNFTAddress as `0x${string}`, // cast to satisfy TS
+      abi: VibeCoinNFTABI,
+      functionName: "safeMint",
+      args: [userAddress, tokenURI],
+    });
 
-//   const handleMint = async () => {
-//     try {
-//       if (!isConnected) {
-//         // Ask user to connect wallet
-//         await connect();
-//       }
-
-//       if (!signer) return;
-
-//       setMinting(true);
-
-//       const nftContract = new ethers.Contract(NFT_CONTRACT_ADDRESS, NFT_ABI, signer);
-
-//       // If your contract has a mint() function
-//       const tx = await nftContract.mint(); // or mint(account.address)
-//       console.log("Transaction sent:", tx.hash);
-
-//       await tx.wait(); // wait for confirmation
-//       alert("NFT minted successfully! 🎉");
-
-//     } catch (err: any) {
-//       console.error(err);
-//       alert("Minting failed: " + (err?.message || err));
-//     } finally {
-//       setMinting(false);
-//     }
-//   };
-
-//   return (
-//     <button
-//       onClick={handleMint}
-//       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition"
-//       disabled={minting}
-//     >
-//       {minting ? "Minting..." : "Mint NFT"}
-//     </button>
-//   );
-// }
+    console.log("Minted NFT Tx:", txHash);
+    return txHash;
+  } catch (err) {
+    console.error("Mint failed:", err);
+    throw err;
+  }
+}

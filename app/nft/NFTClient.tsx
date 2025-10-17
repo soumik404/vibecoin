@@ -1,10 +1,51 @@
 "use client";
 // export const dynamic = "force-dynamic";
 // import { useSearchParams } from "next/navigation";
+// import "../nft/vibe-modal.css";
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
+// import "@coinbase/onchainkit/styles.css";
+// import { Providers } from'./providers';
+import '../../app/globals.css';
+import { useAccount, useChainId } from "wagmi";
+
+// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+// import { ConnectButton } from '@rainbow-me/rainbowkit';
+// import { useConnectModal } from "@rainbow-me/rainbowkit";
+import '@rainbow-me/rainbowkit/styles.css';
+// import {
+//   getDefaultConfig,
+//   RainbowKitProvider,
+// } from '@rainbow-me/rainbowkit';
+// import { WagmiProvider } from 'wagmi';
+// import {
+//   mainnet,
+//   polygon,
+//   optimism,
+//   arbitrum,
+//   base,
+// } from 'wagmi/chains';
+// import {
+//   QueryClientProvider,
+//   QueryClient,
+// } from "@tanstack/react-query";
+import {
+  ConnectWallet,
+  Wallet,
+  WalletDropdown,
+  WalletDropdownDisconnect,
+} from '@coinbase/onchainkit/wallet';
+import {
+  Address,
+  Avatar,
+  Name,
+  Identity,
+} from '@coinbase/onchainkit/identity';
+// import { color } from '@coinbase/onchainkit/theme';
 // import MintButton from "../components/MintButton"; // adjust path if needed
 // import NextImage from "next/image";
+// import { ethers } from "ethers";
+import { mintNFT} from "../components/MintButton"; // adjust path
 type NFTPageSearchParams = {
   score?: string;
 };
@@ -13,6 +54,7 @@ type NFTClientProps = {
   searchParams: NFTPageSearchParams;
 };
 export default function NFTClient({ searchParams }: NFTClientProps) {
+
   const [user, setUser] = useState<{
     discord: string;
     twitter: string;
@@ -23,9 +65,37 @@ export default function NFTClient({ searchParams }: NFTClientProps) {
   const [roles, setRoles] = useState<string[]>([]);
   const [pfpLoaded, setPfpLoaded] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+   const { address } = useAccount();
+  const chainId = useChainId();
 //   const searchParams = useSearchParams();
 //   const score = searchParams.get("score") || "0";
     const score = searchParams.score || "0";
+    // const [nftImage, setNftImage] = useState<string | null>(null); // holds generated NFT image
+const [minting] = useState(false); // loading state
+// const [mintedUrl, setMintedUrl] = useState<string | null>(null); // link to minted NFT
+// const { openConnectModal } = useConnectModal();
+
+
+ const handleMint = async () => {
+     if ( !address) {
+      
+
+      console.log("Wallet not connected");
+    
+      // alert("Please connect your wallet to mint.");
+    return;
+  }
+    const nftMetadata = {
+      name: "Vibe NFT",
+      description: "Minted on VibeCoin NFT Collection",
+      image: "https://example.com/nft.png",
+    };
+
+    const txHash = await mintNFT({ userAddress: address, chainId, nftMetadata });
+    console.log("Mint complete! Tx:", txHash);
+  };
+
+
 
 const mainRoles = [
   "Connected",
@@ -64,12 +134,22 @@ const mainRoles = [
       img.onload = () => setPfpLoaded(true);
     }
   }, [user]);
+  
 
   const handleDownload = async () => {
     if (!cardRef.current || !pfpLoaded) {
       alert("Please wait for the profile picture to load.");
       return;
     }
+//     // nft image
+//     const handleGenerateNFTImage = async () => {
+//   if (!cardRef.current || !pfpLoaded) return alert("Please wait for profile picture to load.");
+
+//   const canvas = await html2canvas(cardRef.current, { useCORS: true, allowTaint: true });
+//   const dataUrl = canvas.toDataURL("image/png"); // base64 PNG
+//   setNftImage(dataUrl);
+// };
+
 
     const discordText = document.getElementById("discord-h2");
     discordText?.classList.add("capture-text");
@@ -93,7 +173,21 @@ const mainRoles = [
   }
 
   return (
+    // shhs
+
+
+
+
+
+
+
+
+
+
+
+    // jjs
     <div className="flex flex-col items-center min-h-screen bg-blue-50 py-12">
+     
       <h1 className="text-4xl font-bold text-blue-900 mb-10 text-center">Your Base NFT 🎁</h1>
 
       {/* NFT CARD */}
@@ -194,30 +288,124 @@ const mainRoles = [
   ))}
 </div>
         </div>
+       
+  {/* connect wallet */}
 
+<div className="flex justify-end">
+      <Wallet>
+  <ConnectWallet>
+    <Avatar className="h-6 w-6" />
+    <Name />
+  </ConnectWallet>
+  <WalletDropdown>
+    <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
+      <Avatar />
+      <Name />
+      <Address />
+    </Identity>
+    <WalletDropdownDisconnect />
+  </WalletDropdown>
+</Wallet>
+    </div>
+
+
+          {/* end */}
         <div className="flex gap-4 mt-4">
+
+          
           <button
             onClick={handleDownload}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition"
           >
             Download
           </button>
-          <button
-            onClick={() => alert("Minting not connected yet")}
-            className="flex-1 bg-gradient-to-r from-blue-400 to-blue-500 text-white py-3 rounded-xl font-bold hover:scale-105 transition-transform"
-          >
-            Mint
-          </button>
-          {/* <MintButton
-            onClick={() => alert("Minting not connected yet")}
-            className="flex-1 bg-gradient-to-r from-blue-400 to-blue-500 text-white py-3 rounded-xl font-bold hover:scale-105 transition-transform"
-          >
-            Mint
-          <MintButton /> */}
+          {/* <ConnectWallet
+  render={({ onClick, status, isLoading }) => (
+    <button onClick={onClick} className="my-custom-style">
+      {status === 'disconnected' ? 'Connect' : 'Connected'}
+    </button>
+  )}
+/> */}
+<button
+  onClick={handleMint}
+  disabled={minting}
+  className={`flex-1 ${minting ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"} text-white py-3 rounded-xl font-bold transition`}
+>
+  {minting ? "Minting..." : "Mint NFT"}
+</button>
+
+
         </div>
       </div>
 
- 
+<style jsx global>{`
+/* Modal backdrop */
+.ock\\:bg-ock-background {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(6px);
+}
+
+/* Modal container */
+.ock\\:border-ock-line.ock\\:rounded-ock-default.ock\\:bg-ock-background {
+  background-color: #dd2909ff !important; /* light blue */
+  border-radius: 1.5rem !important;
+  padding: 2rem !important;
+  max-width: 400px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Modal header */
+.ock\\:font-ock.ock\\:font-semibold.ock\\:text-ock-foreground.ock\\:text-center {
+  text-align: center !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #1e40af !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Wallet buttons */
+.ock\\:rounded-ock-default.ock\\:font-ock.ock\\:font-normal.ock\\:text-base.ock\\:cursor-pointer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  background-color: #2563eb !important;
+  color: white !important;
+  transition: background-color 0.2s;
+}
+
+.ock\\:rounded-ock-default.ock\\:font-ock.ock\\:font-normal.ock\\:text-base.ock\\:cursor-pointer:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* Modal footer / Terms links */
+.ock\\:text-ock-foreground-muted.ock\\:font-ock.ock\\:text-xs {
+  font-size: 0.75rem !important;
+  text-align: center !important;
+  color: #1e40af !important;
+  margin-top: 1rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ock\\:text-ock-foreground-muted.ock\\:font-ock.ock\\:text-xs a {
+  color: #3b82f6 !important;
+  text-decoration: underline !important;
+}
+`}</style>
+
+
+
+
 
 
       {/* Animations */}

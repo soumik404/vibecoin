@@ -1,12 +1,135 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-/* @import "@coinbase/onchainkit/dist/assets/style.css"; */
-
-
+@import "./onchainkit-fix.css";
 /* ----------------------------- */
 /* Custom CSS Variables for Theme */
 /* ----------------------------- */
+
+/* === MODERN POPUP MODAL STYLE === */
+
+/* Backdrop blur and dim effect */
+
+
+/* --- GLOBAL STYLES (IMPROVED) --- */
+/* --- GLOBAL STYLES (IMPROVED) --- */
+
+/* Modal container */
+[data-testid="ockModalOverlay"] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  align-items: center !important;
+  align-content: center !important;
+  align-self: center !important;
+
+  /* Look & feel UPGRADES */
+  background: #ffffff !important; /* Clean solid white background */
+  border-radius: 1.5rem !important;
+  padding: 2rem 1.75rem !important; /* Increased padding for better internal spacing */
+  
+  /* Modern, deep box-shadow (gives it lift) */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+  
+  width: 90% !important;
+  max-width: 25rem !important; /* Slightly increased max-width for balance */
+  
+  /* ADDED: Limits the vertical size to 85% of the viewport height and allows scrolling */
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+  
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 1.5rem !important; /* More space between elements */
+  animation: popupFade 0.3s ease-out;
+}
+
+/* Title / header */
+[data-testid="ockModalOverlay"] h2 {
+  text-align: center !important;
+  color: #1e40af !important;
+  font-size: 1.65rem !important; /* Slightly larger, more dominant title */
+  font-weight: 800 !important; /* Bolder title */
+  margin-bottom: 0.25rem !important;
+}
+
+/* Subtext or description */
+[data-testid="ockModalOverlay"] p {
+  text-align: center !important;
+  color: #475569 !important;
+  font-size: 1rem !important; /* Standardized size */
+  line-height: 1.5 !important;
+  margin: 0 !important;
+}
+
+/* Buttons (Now full width for better touch targets) */
+[data-testid="ockModalOverlay"] button {
+  width: 30% !important; /* CRITICAL: Full width for mobile usability */
+  max-width: 18rem !important; /* Prevents button from looking too wide in the container */
+  padding: 1rem 1.5rem !important;
+  margin: .2rem !important;
+  border-radius: 0.75rem !important;
+  font-size: .8rem !important;
+  font-weight: 600 !important;
+  background-color: #2563eb !important;
+  color: white !important;
+  transition: all 0.25s ease !important;
+  border: none !important;
+  align-items: center !important;
+  align-content: center !important;
+  align-self: center !important;
+  /* Button lift/shadow */
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4) !important;
+}
+
+[data-testid="ockModalOverlay"] button:hover {
+  background-color: #1d4ed8 !important;
+  transform: translateY(-3px) !important; /* Stronger hover effect */
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.5) !important;
+}
+
+/* Optional close button */
+[data-testid="ockModalOverlay"] .close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none !important;
+  border: none !important;
+  color: #94a3b8 !important; /* Lighter color for subtlety */
+  font-size: 1.4rem !important;
+  cursor: pointer !important;
+  transition: color 0.2s ease, transform 0.1s ease !important;
+}
+
+[data-testid="ockModalOverlay"] .close-btn:hover {
+  color: #1e40af !important;
+  transform: rotate(90deg); /* Subtle spin on hover */
+}
+
+/* Animation */
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%) scale(0.95); /* Added scale for a punchier effect */
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* --- MOBILE OPTIMIZATION (Simplified and Refined) --- */
+@media (max-width: 500px) {
+  [data-testid="ockModalOverlay"] {
+    padding: 1.75rem 1.25rem !important; /* Slightly less vertical padding on smaller screens */
+    border-radius: 1.25rem !important;
+    gap: 1.25rem !important;
+  }
+  
+  [data-testid="ockModalOverlay"] h2 {
+    font-size: 1.5rem !important;
+  }
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 220 15% 10%;

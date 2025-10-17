@@ -1,0 +1,9 @@
+/* ✅ Fix for Coinbase OnchainKit + Tailwind layer conflict */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ✅ Import the Coinbase OnchainKit styles under a safe layer */
+@layer onchainkit {
+@import "@coinbase/onchainkit/styles.css" layer(onchainkit);
+}
