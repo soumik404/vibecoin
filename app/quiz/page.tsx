@@ -14,14 +14,14 @@ import { useRouter } from "next/navigation";
 
 const questions = [
   { q: "What is Base?", a: ["A blockchain", "A game", "A meme"], correct: 0 },
-  { q: "Who built Base?", a: ["Coinbase", "Binance", "Zora"], correct: 0 },
-  { q: "Base is built on?", a: ["Optimism", "Arbitrum", "Polygon"], correct: 0 },
-  { q: "Which token is native to Base?", a: ["BASE", "ETH", "USDC"], correct: 0 },
-  { q: "Base is focused on?", a: ["DeFi", "AI", "Gaming"], correct: 0 },
-  { q: "What type of chain is Base?", a: ["L2", "L1", "Sidechain"], correct: 0 },
+  { q: "What is the main token used for gas on Base?", a: ["$BASE", "USDC", "ETH"], correct: 2 },
+  { q: "What blockchain is Base built on top of?", a: ["Arbitrum", "Ethereum", "Polygon"], correct: 1 },
   { q: "Which company founded Base?", a: ["Coinbase", "OpenAI", "Meta"], correct: 0 },
+  { q: "Which Layer 2 framework does Base use?", a: ["Arbitrum Nitro", "StarkNet", "Optimism OP Stack"], correct: 2 },
+  { q: "What Layer of Ethereum is Base considered?", a: ["Layer 0", "Layer 1", "Layer 2"], correct: 2 },
+  { q: "What technology does Base use to reduce gas fees?", a: ["Proof of Work", "Rollups", "Sidechain"], correct: 1 },
   { q: "Base is optimized for?", a: ["Low fees", "High fees", "NFT only"], correct: 0 },
-  { q: "What consensus does Base use?", a: ["Optimistic Rollup", "PoW", "PoS"], correct: 0 },
+  { q: "What consensus does Base use?", a: ["PoW", "PoS","Optimistic Rollup"], correct: 2 },
   { q: "Is Base EVM compatible?", a: ["Yes", "No", "Partially"], correct: 0 },
 ];
 
@@ -38,7 +38,7 @@ export default function QuizPage() {
 
   // modal + pfp
   const [modalOpen, setModalOpen] = useState(false);
-  const [pfp, setPfp] = useState<string>("/default-avatar.png");
+  const [pfp, setPfp] = useState<string>("/user.jpg");
   const [pfpLoaded, setPfpLoaded] = useState(false);
   const [pfpLoading, setPfpLoading] = useState(false);
   const typingTimeoutRef = useRef<number | null>(null);
@@ -61,7 +61,7 @@ export default function QuizPage() {
   // fetch pfp from your proxy route: /api/auth/twitter-pfp?handle=
   const fetchPfp = async (handle: string) => {
     if (!handle) {
-      setPfp("/default-avatar.png");
+      setPfp("/user.jpg");
       setPfpLoaded(true);
       setPfpLoading(false);
       return;
@@ -90,7 +90,7 @@ export default function QuizPage() {
     } catch (err: unknown) {
       if (err instanceof DOMException && err.name === "AbortError") return;
       console.error("pfp fetch error", err);
-      setPfp("/default-avatar.png");
+      setPfp("/user.jpg");
       setPfpLoaded(true);
       setPfpLoading(false);
     }
@@ -100,7 +100,7 @@ export default function QuizPage() {
   const handleTwitterChange = (value: string) => {
     setTwitter(value);
     setPfpLoaded(false);
-    setPfp("/default-avatar.png");
+    setPfp("/user.jpg");
 
     if (typingTimeoutRef.current) window.clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = window.setTimeout(() => {
@@ -135,6 +135,7 @@ export default function QuizPage() {
     const user = { discord: discord.trim(), twitter: twitter.trim(), pfp, baseTime };
     try {
       localStorage.setItem("vibecoin_user", JSON.stringify(user));
+      console.log("Saved user to localStorage", user);
     } catch (err) {
       console.warn("localStorage set error", err);
     }
@@ -305,9 +306,9 @@ export default function QuizPage() {
       }
       className="p-2 rounded-xl bg-white/10 text-white border border-blue-400/40 focus:border-blue-300 focus:ring-2 focus:ring-blue-400 outline-none"
     >
-      <option value="days">Days</option>
-      <option value="months">Months</option>
-      <option value="years">Years</option>
+    <option value="days" className="bg-gray-900 text-white">Days</option>
+  <option value="months" className="bg-gray-900 text-white">Months</option>
+  <option value="years" className="bg-gray-900 text-white">Years</option>
     </select>
   </div>
 </div>

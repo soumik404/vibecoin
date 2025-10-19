@@ -6,7 +6,6 @@ import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import { base } from "wagmi/chains";
 import { ToastContainer } from "./components/toastManager";
-import { Connected } from '@coinbase/onchainkit';
 import "./globals.css";
 import styles from "./page.module.css";
 
@@ -58,9 +57,7 @@ export default function Home() {
         <p className="text-sm text-gray-300 mt-8">
           Powered by Base 
         </p>
-        <Connected>
-      <div>Welcome! Your wallet is connected.</div>
-    </Connected>
+       
         {/* connect wallet */}
         
        

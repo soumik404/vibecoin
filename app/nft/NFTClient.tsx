@@ -1,34 +1,13 @@
 "use client";
-// export const dynamic = "force-dynamic";
-// import { useSearchParams } from "next/navigation";
-// import "../nft/vibe-modal.css";
 import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
-// import "@coinbase/onchainkit/styles.css";
-// import { Providers } from'./providers';
+import { Signature } from '@coinbase/onchainkit/signature';
+import { Connected } from '@coinbase/onchainkit';
 import '../../app/globals.css';
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import { uploadToPinata } from "../components/uploadToPinata";
-import { showToast } from "../components/toastManager";// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
-// import { ConnectButton } from '@rainbow-me/rainbowkit';
-// import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { showToast } from "../components/toastManager";
 import '@rainbow-me/rainbowkit/styles.css';
-// import {
-//   getDefaultConfig,
-//   RainbowKitProvider,
-// } from '@rainbow-me/rainbowkit';
-// import { WagmiProvider } from 'wagmi';
-// import {
-//   mainnet,
-//   polygon,
-//   optimism,
-//   arbitrum,
-//   base,
-// } from 'wagmi/chains';
-// import {
-//   QueryClientProvider,
-//   QueryClient,
-// } from "@tanstack/react-query";
 import {
   ConnectWallet,
   Wallet,
@@ -41,10 +20,6 @@ import {
   Name,
   Identity,
 } from '@coinbase/onchainkit/identity';
-// import { color } from '@coinbase/onchainkit/theme';
-// import MintButton from "../components/MintButton"; // adjust path if needed
-// import NextImage from "next/image";
-// import { ethers } from "ethers";
 import { mintNFT} from "../components/MintButton"; // adjust path
 type NFTPageSearchParams = {
   score?: string;
@@ -65,18 +40,62 @@ export default function NFTClient({ searchParams }: NFTClientProps) {
   const [roles, setRoles] = useState<string[]>([]);
   const [pfpLoaded, setPfpLoaded] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-   const { address } = useAccount();
-  const chainId = useChainId();
-//   const searchParams = useSearchParams();
-//   const score = searchParams.get("score") || "0";
+   const { address , isConnected } = useAccount();
     const score = searchParams.score || "0";
-    // const [nftImage, setNftImage] = useState<string | null>(null); // holds generated NFT image
 const [minting] = useState(false); // loading state
-// const [mintedUrl, setMintedUrl] = useState<string | null>(null); // link to minted NFT
-// const { openConnectModal } = useConnectModal();
+const [chainId, setChainId] = useState<number | null>(null);
+const handleSignatureSuccess = async (signature: string) => {
+  console.log("✅ Signature:", signature);
+
+  if (window.ethereum) {
+    const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
+    const chainId = parseInt(chainIdHex, 16);
+    console.log("🧩 Current Chain ID:", chainId);
+
+    if (chainId !== 8453) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x2105" }], // 8453 in hex
+        });
+        showToast("Switched to Base Mainnet ✅", "success");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          // Add Base network if missing
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: "0x2105",
+                chainName: "Base Mainnet",
+                nativeCurrency: { name: "Base", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://mainnet.base.org"],
+                blockExplorerUrls: ["https://basescan.org"],
+              },
+            ],
+          });
+          showToast("Base Mainnet added and switched ✅", "success");
+        } else {
+          showToast("Please switch to Base network manually.", "error");
+        }
+      }
+    } else {
+      showToast("You are already on Base Mainnet ✅", "success");
+      console.log(`chain id is ${chainId}`);
+    }
+
+    // store chainId in state for mint use
+    setChainId(chainId);
+  }
+};
 
 
  const handleMint = async () => {
+  if (!chainId || chainId !== 8453) {
+  showToast("Please connect to Base Mainnet before minting.", "error");
+
+  return;
+}
   if (!address) {
 showToast("Wallet not connected!", "error");
 console.log("Wallet not connected!");
@@ -110,11 +129,11 @@ console.log("Wallet not connected!");
     };
 
     // 4️⃣ Mint NFT using your existing mintNFT function
-    const txHash = await mintNFT({ userAddress: address, chainId, nftMetadata: metadata });
+    const txHash = await mintNFT({ nftMetadata: metadata });
     showToast(`NFT minted successfully! 🎉 Tx Hash: ${txHash}`, "success");
   } catch (err) {
     console.error("Mint error:", err);
-    showToast( `Minting failed. Please try again. ${err}`, "error");
+    showToast( `Minting failed. Please try again.`, "error");
   }
 };
 
@@ -138,6 +157,13 @@ const mainRoles = [
   "Base Learn Prefect",
   "Base Learn Supreme",
 ];
+useEffect(() => {
+  if (isConnected) {
+    console.log("Wallet connected:", address);
+    showToast("Wallet connected successfully!", "success");
+    // setShowSignature(true);
+  }
+}, [isConnected]);
 
   useEffect(() => {
     try {
@@ -165,14 +191,6 @@ const mainRoles = [
       showToast("Please wait for the profile picture to load successfully.", "error");
       return;
     }
-//     // nft image
-//     const handleGenerateNFTImage = async () => {
-//   if (!cardRef.current || !pfpLoaded) return alert("Please wait for profile picture to load.");
-
-//   const canvas = await html2canvas(cardRef.current, { useCORS: true, allowTaint: true });
-//   const dataUrl = canvas.toDataURL("image/png"); // base64 PNG
-//   setNftImage(dataUrl);
-// };
 
 
     const discordText = document.getElementById("discord-h2");
@@ -197,19 +215,6 @@ const mainRoles = [
   }
 
   return (
-    // shhs
-
-
-
-
-
-
-
-
-
-
-
-    // jjs
     <div className="flex flex-col items-center min-h-screen bg-blue-50 py-12">
      
       <h1 className="text-4xl font-bold text-blue-900 mb-10 text-center">Your Base NFT 🎁</h1>
@@ -320,13 +325,16 @@ const mainRoles = [
   {/* connect wallet */}
 
 <div className="flex justify-end">
-      <Wallet>
+  <Connected
+      fallback={
+        <div className="text-center p-4">
+           <Wallet>
   <ConnectWallet>
     <Avatar className="h-6 w-6" />
     <Name />
   </ConnectWallet>
   <WalletDropdown>
-    <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
+    <Identity className="px-4 pt-3 pb-2">
       <Avatar />
       <Name />
       <Address />
@@ -334,7 +342,40 @@ const mainRoles = [
     <WalletDropdownDisconnect />
   </WalletDropdown>
 </Wallet>
+        </div>
+      }
+    >
+      <div> <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600/20 to-cyan-500/20 backdrop-blur-md border border-blue-400/30 text-blue-300 text-sm font-semibold shadow-md hover:shadow-blue-500/30 transition-all duration-200">
+  <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+  Wallet Connected ✅
+  
+  <Identity className="">
+        
+            
+          
+      <Address /> <br />
+      </Identity>
+</div>
+
+    
+     <Signature
+    message="Sign to confirm your minting on Base 🪩"
+   label={
+    <span className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-md transition-all duration-200 flex items-center gap-2">
+      Connect to Base Mainnet
+    </span>
+  }
+    onSuccess={handleSignatureSuccess}
+      />
+    
     </div>
+    </Connected>
+  
+     
+    </div>
+
+
+
 
 
           {/* end */}
